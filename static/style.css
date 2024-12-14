@@ -1,0 +1,73 @@
+html {
+  background: #212121;
+}
+
+body {
+  margin: 0;
+  font-family: "Fira Sans", sans-serif;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  display: flex;
+  height: 100vh;
+  }
+
+h1, h2, h3, h4, h5, h6 {
+  margin-left: 2%;
+  color: #E4E4E4;
+}
+
+button {
+  margin-left: 2%;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #4caf50, #81c784);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  }
+
+button:hover {
+  background: linear-gradient(135deg, #388e3c, #66bb6a);
+  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.editor-container {
+  width: 50%;
+  padding: 20px;
+  background: #3a3a3a;
+}
+
+.output-container {
+  width: 50%;
+  padding: 20px;
+  background: #3a3a3a;
+  overflow-y: auto;
+}
+
+#editor {
+  height: 400px;
+  padding: 15px;
+  border: 1px solid #E4E4E4;
+  color: #E4E4E4;
+}
+
+#output {
+  height: 400px;
+  padding: 15px;
+  border: 1px solid #E4E4E4;
+  overflow-y: auto;
+  color: #E4E4E4;
+}
