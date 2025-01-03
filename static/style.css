@@ -34,13 +34,15 @@ h1, h2, h3, h4, h5, h6 {
   min-width: 35vh;
   min-height: 35vh;
   padding: 15px;
-  border: 1px solid #E4E4E4;
   color: #E4E4E4;
-  overflow: auto;
-  resize: both;
-  box-sizing: border-box; /* Include padding and border in height/width calculations */
+  box-sizing: border-box;
 }
 
+#editor {
+  border: 1px solid #E4E4E4;
+  overflow: auto;
+  resize: both;
+}
 
 button {
   margin-left: 2%;
@@ -60,4 +62,41 @@ button:hover {
   background: linear-gradient(135deg, #388e3c, #66bb6a);
   box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
+}
+
+.output-box {
+  height: 100%;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  border: 1px solid #E4E4E4;
+  overflow: auto;
+  resize: both;
+  min-width: 35vh;
+  min-height: 35vh;
+  width: 100%;
+  height: calc(100% - 30px);
+  background-color: #1e1e1e;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.display-area {
+  flex-grow: 1;
+  padding: 15px;
+  overflow: auto;
+  color: #E4E4E4;
+  border-bottom: 1px solid #E4E4E4;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 14px;
+}
+
+.input-box {
+  height: 40px;
+  border: none;
+  padding: 10px;
+  font-size: 14px;
+  color: #E4E4E4;
+  background-color: #212121;
+  box-sizing: border-box;
+  outline: none;
 }
