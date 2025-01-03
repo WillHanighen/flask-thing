@@ -36,10 +36,11 @@ h1, h2, h3, h4, h5, h6 {
   padding: 15px;
   color: #E4E4E4;
   box-sizing: border-box;
+  border-radius: 10px;
 }
 
 #editor {
-  border: 1px solid #E4E4E4;
+  border: 2px solid #E4E4E4;
   overflow: auto;
   resize: both;
 }
@@ -69,15 +70,16 @@ button:hover {
   display: flex;
   flex-grow: 1;
   flex-direction: column;
-  border: 1px solid #E4E4E4;
+  border: 2px solid #E4E4E4;
   overflow: auto;
   resize: both;
   min-width: 35vh;
   min-height: 35vh;
   width: 100%;
-  height: calc(100% - 30px);
+  height: calc(100% - 33px);
   background-color: #1e1e1e;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
 }
 
 .display-area {
@@ -100,3 +102,5 @@ button:hover {
   box-sizing: border-box;
   outline: none;
 }
+
+/* guh */
