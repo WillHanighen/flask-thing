@@ -1,4 +1,6 @@
 var editor = ace.edit("editor")
+editor.setReadOnly(true);
+editor.setOptions({fontSize: "14px"})
 editor.setTheme("ace/theme/monokai")
 editor.session.setMode("ace/mode/python")
 
