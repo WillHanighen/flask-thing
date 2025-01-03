@@ -28,6 +28,6 @@ function executeCode() {
     })
     .catch(error => {
         output.style.color = "red"
-        output.textContent = "An error has occured: " + error
+        output.textContent = "An error has occured! error: " + error
     })
 }
