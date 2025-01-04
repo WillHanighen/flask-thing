@@ -1,0 +1,17 @@
+backup of execute()
+@app.route('/execute', methods=['POST'])
+def execute():
+  data = request.get_json()
+  code = data.get('code')
+  old_stdout = sys.stdout
+  redir_out = sys.stdout = io.StringIO()
+  try:
+    exec(code)
+    output = redir_out.getvalue()
+    return jsonify({'output': output, 'error': None})
+  except Exception as e:
+    error_msg = traceback.format_exc()
+    return jsonify({'output': None, 'error': str(error_msg)})
+  finally:
+    sys.stdout = old_stdout
+

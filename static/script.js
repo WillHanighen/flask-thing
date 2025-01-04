@@ -7,21 +7,31 @@ editor.session.setMode("ace/mode/python")
 function executeCode() {
     const code = editor.getValue()
     const output = document.getElementById("output")
-    
+    waitForInput = false
+
     fetch("/execute", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({code: code})
+        body: JSON.stringify({code: code, input: null})
     })
     .then(response => response.json())
     .then(data => {
+        console.log('test1', data, code)
         if(data.error) {
             output.style.color = "red"
             output.textContent = data.error
         }
+        else if(data.waitingForInput) {
+          waitForInput = true
+          output.style.color = "#E4E4E4"
+          output.textContent += data.output
+          waitForInput = true
+          document.getElementById("user-input").focus()
+        }
         else {
+            console.log('test2', data)
             output.style.color = "#E4E4E4"
             output.textContent = data.output
         }
@@ -31,3 +41,47 @@ function executeCode() {
         output.textContent = "An error has occured! error: " + error
     })
 }
+
+function submitInput() {
+  if (!waitForInput) {
+    return;
+  }
+  const userInput = document.getElementById("user-input").value
+  const output = document.getElementById("output")
+  output.textContent += "\n" + userInput + "\n"
+  fetch("/execute", {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({input: userInput})
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      output.style.color = "red"
+      output.textContent += data.error
+    }
+    else if (data.waitingForInput) {
+      output.style.color = "#E4E4E4"
+      output.textContent += data.output
+      waitForInput = true
+      document.getElementById("user-input").focus()
+    }
+    else {
+      output.style.color = "#E4E4E4"
+      output.textContent += data.output
+      waitForInput = false
+    }
+  })
+  .catch(error => {
+    output.style.color = "red"
+    output.textContent += "An error has occurred! error: " + error
+  })
+}
+
+document.getElementById("user-input").addEventListener("keypress", function(event) {
+  if (event.key === 'Enter') {
+    submitInput()
+  }
+})
