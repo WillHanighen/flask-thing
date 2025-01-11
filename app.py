@@ -7,14 +7,17 @@ executions = {}
 
 class InputProvider:
   def __init__(self):
+    print("initializing input provider")
     self.input_queue = Queue()
     self.output_buffer = io.StringIO()
   
   def get_input(self, prompt=""):
+    print("getting input")
     self.output_buffer.write(prompt)
     raise InputRequired()
-  
+
   def set_input(self, user_input):
+    print("setting input")
     self.input_queue.put(user_input)
     return user_input
   
@@ -38,8 +41,11 @@ def execute():
     except InputRequired:
       return jsonify({'output': input_provider.output_buffer.getvalue(), 'waitingForInput': True})
     except Exception as e:
+      print("Error executing code:", str(e))
       return jsonify({'output': None, 'error': str(e)})
-      
+    
+  print("code received from fronend (input null)")
+  
   code = data.get('code')
   old_stdout = sys.stdout
   redir_out = sys.stdout = io.StringIO()
@@ -47,7 +53,7 @@ def execute():
     'input': input_provider.get_input,
     '__name__': '__main__'
   }
-  
+  print("executing input")
   try:
     print("test 2")
     exec(code, exec_env)

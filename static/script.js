@@ -18,16 +18,16 @@ function executeCode() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('test1', data, code)
+        console.log(data.waitingForInput)
         if(data.error) {
             output.style.color = "red"
             output.textContent = data.error
         }
         else if(data.waitingForInput) {
+          console.log("displaying input message")
           waitForInput = true
           output.style.color = "#E4E4E4"
           output.textContent += data.output
-          waitForInput = true
           document.getElementById("user-input").focus()
         }
         else {
@@ -48,7 +48,7 @@ function submitInput() {
   }
   const userInput = document.getElementById("user-input").value
   const output = document.getElementById("output")
-  output.textContent += "\n" + userInput + "\n"
+  // output.textContent += "\n" + userInput + "\n"
   fetch("/execute", {
     method: "POST",
     headers: {
@@ -58,6 +58,7 @@ function submitInput() {
   })
   .then(response => response.json())
   .then(data => {
+    console.log("display output")
     if (data.error) {
       output.style.color = "red"
       output.textContent += data.error
@@ -69,6 +70,8 @@ function submitInput() {
       document.getElementById("user-input").focus()
     }
     else {
+      console.log("display output from input field")
+      console.log(data.output)
       output.style.color = "#E4E4E4"
       output.textContent += data.output
       waitForInput = false
