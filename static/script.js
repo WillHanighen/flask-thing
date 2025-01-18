@@ -1,90 +1,64 @@
-var editor = ace.edit("editor")
-editor.setReadOnly(true);
-editor.setOptions({fontSize: "14px"})
-editor.setTheme("ace/theme/monokai")
-editor.session.setMode("ace/mode/python")
+const editor = ace.edit("editor");
+editor.setReadOnly(false);
+editor.setOptions({fontSize: "14px"});
+editor.setTheme("ace/theme/monokai");
+editor.session.setMode("ace/mode/python");
+
+const outputDiv = document.getElementById("output");
+const inputBox = document.getElementById("user-input");
+const inputQueue = [];
+
+let isWaitingForInput = false;
+let programCode = "";
+
+function appendOutput(text) {
+  outputDiv.innerHTML += text.replace(/\n/g, "<br>");
+  outputDiv.scrollTop = outputDiv.scrollHeight;
+}
+
+function handleUserInput() {
+  const inputValue = inputBox.value.trim();
+  if (isWaitingForInput) {
+    inputQueue.push(inputValue);
+    appendOutput(`${inputValue}<br>`); // Add user input to the output
+    inputBox.value = "";
+    isWaitingForInput = false;
+  }
+}
 
 function executeCode() {
-    const code = editor.getValue()
-    const output = document.getElementById("output")
-    waitForInput = false
+  outputDiv.innerHTML = "";
+  inputQueue.length = 0;
+  isWaitingForInput = false;
 
-    fetch("/execute", {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({code: code, input: null})
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data.waitingForInput)
-        if(data.error) {
-            output.style.color = "red"
-            output.textContent = data.error
-        }
-        else if(data.waitingForInput) {
-          console.log("displaying input message")
-          waitForInput = true
-          output.style.color = "#E4E4E4"
-          output.textContent += data.output
-          document.getElementById("user-input").focus()
-        }
-        else {
-            console.log('test2', data)
-            output.style.color = "#E4E4E4"
-            output.textContent = data.output
-        }
-    })
-    .catch(error => {
-        output.style.color = "red"
-        output.textContent = "An error has occured! error: " + error
-    })
-}
+  programCode = editor.getValue();
 
-function submitInput() {
-  if (!waitForInput) {
-    return;
-  }
-  const userInput = document.getElementById("user-input").value
-  const output = document.getElementById("output")
-  // output.textContent += "\n" + userInput + "\n"
-  fetch("/execute", {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json',
+  Sk.configure({
+    output: appendOutput,
+    read: function (filename) {
+      if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][filename] === undefined) {
+        throw `File not found: '${filename}'`;
+      }
+      return Sk.builtinFiles["files"][filename];
     },
-    body: JSON.stringify({input: userInput})
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log("display output")
-    if (data.error) {
-      output.style.color = "red"
-      output.textContent += data.error
-    }
-    else if (data.waitingForInput) {
-      output.style.color = "#E4E4E4"
-      output.textContent += data.output
-      waitForInput = true
-      document.getElementById("user-input").focus()
-    }
-    else {
-      console.log("display output from input field")
-      console.log(data.output)
-      output.style.color = "#E4E4E4"
-      output.textContent += data.output
-      waitForInput = false
-    }
-  })
-  .catch(error => {
-    output.style.color = "red"
-    output.textContent += "An error has occurred! error: " + error
-  })
-}
+    inputfun: function (promptText) {
+      appendOutput(promptText);
+      return new Promise((resolve) => {
+        isWaitingForInput = true;
+        const interval = setInterval(() => {
+          if (!isWaitingForInput) {
+            clearInterval(interval);
+            resolve(inputQueue.shift());
+          }
+        }, 50);
+      });
+    },
+  });
 
-document.getElementById("user-input").addEventListener("keypress", function(event) {
-  if (event.key === 'Enter') {
-    submitInput()
-  }
-})
+  Sk.misceval
+    .asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, programCode, true))
+    .then(
+      () => appendOutput("<br>Program finished successfully.<br>"),
+      (err) => appendOutput(`<br>Error: ${err.toString()}<br>`)
+    );
+}
