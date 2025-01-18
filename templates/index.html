@@ -1,35 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../static/style.css" rel="stylesheet" type="text/css">
     <title>PY-Interp</title>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="editor-container">
-            <h2>Python Code - <!--PUT PROJECT NAME HERE--> check index.html (blank)</h2>
-            <div id="editor"># testing is soo funnnn >.<
-hello = "hello"
-test = input(hello)
-print(f"test {test}")
-print("Hello, World!\nThe Quick Brown Fox Jumps Over The Lazy Dog")
+      <div class="editor-container">
+        <h2>Python Code - Temprature Converter</h2>
+        <div id="editor"># temprature converter
+
+def clear():
+  # import OS is not available in Skulpt, pretend this clears the output
+  # def clear():
+  # if os.name == 'nt':
+  #   os.system('cls')
+  # else:
+  #   os.system('clear')
+  pass
+
+def main():
+  while True:
+    CorF = input("\nSelect one:\n1: °C to °F\n2: °F to °C\n3: K to °C\n4: K to °F\n5: °F to K\n6: °C to K\n7: Exit\n")
+    clear()
+    if CorF in {"1", "2", "3", "4", "5", "6", "7"}:
+      try:
+        if CorF == "7":
+          break
+        else: 
+          temp = float(input("What is the temperature?\n"))
+        clear()
+        if CorF == "1":  # °C to °F
+          print("Your temperature is ", temp * 1.8 + 32, "°F")
+        elif CorF == "2":  # °F to °C
+          print("Your temperature is ", (temp - 32) / 1.8, "°C")
+        elif CorF == "3":  # K to °C
+          print("Your temperature is ", temp - 273.15, "°C")
+        elif CorF == "4":  # K to °F
+          print("Your temperature is ", (temp - 273.15) * 1.8 + 32, "°F")
+        elif CorF == "5":  # °F to K
+          print("Your temperature is ", (temp - 32) / 1.8 + 273.15, "K")
+        elif CorF == "6":  # °C to K
+          print("Your temperature is ", temp + 273.15, "K")
+      except ValueError:
+        input("Invalid input! Please enter a valid numerical temperature.\nPress enter to continue...")
+        clear()
+        continue
+    else:
+      input("Invalid input! Please enter a number from 1 to 6.\nPress enter to continue...")
+      clear()
+      continue
+
+    if input("Would you like to convert another temperature? (Y/N)\n").lower() == "y":
+      clear()
+    else:
+      clear()
+      input("Thank you for using my converter!\nPress enter to exit...")
+      break
+
+if __name__ == "__main__":
+  main()
+
 </div>
-            <br>
-            <button onclick="executeCode()">Run Code</button>
+        <br>
+        <button onclick="executeCode()">Run Code</button>
+      </div>
+      <div class="output-container">
+        <h2>Output</h2>
+        <div class="output-box">
+          <div class="display-area" id="output">
+            <!-- Output will appear here -->
+          </div>
+          <input type="text" placeholder="Type input here..." class="input-box" id="user-input" onkeydown="if(event.key === 'Enter') handleUserInput()" />
         </div>
-        <div class="output-container">
-            <h2>Output</h2>
-            <div class="output-box">
-                <div class="display-area" id="output">
-                    <!-- Output will appear here -->
-                </div>
-                <input type="text" placeholder="type here..." class="input-box" id="user-input"/>
-            </div>
-        </div>        
+      </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
-    <script src="../static/script.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt/dist/skulpt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt/dist/skulpt-stdlib.js"></script>
+    <script>
+      const editor = ace.edit("editor")
+      editor.setReadOnly(false);
+      editor.setOptions({fontSize: "14px"})
+      editor.setTheme("ace/theme/monokai")
+      editor.session.setMode("ace/mode/python")
+
+      const outputDiv = document.getElementById("output");
+      const inputBox = document.getElementById("user-input");
+      const inputQueue = [];
+
+      let isWaitingForInput = false;
+      let programCode = "";
+
+      function appendOutput(text) {
+        outputDiv.innerHTML += text.replace(/\n/g, "<br>");
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+      }
+
+      function handleUserInput() {
+        const inputValue = inputBox.value.trim();
+        if (isWaitingForInput) {
+          inputQueue.push(inputValue);
+          inputBox.value = "";
+          isWaitingForInput = false;
+        }
+      }
+
+      function executeCode() {
+        outputDiv.innerHTML = "";
+        inputQueue.length = 0;
+        isWaitingForInput = false;
+
+        programCode = editor.getValue();
+
+        Sk.configure({
+          output: appendOutput,
+          read: function (filename) {
+            if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][filename] === undefined) {
+              throw `File not found: '${filename}'`;
+            }
+            return Sk.builtinFiles["files"][filename];
+          },
+          inputfun: function (promptText) {
+            appendOutput(promptText);
+            return new Promise((resolve) => {
+              isWaitingForInput = true;
+              const interval = setInterval(() => {
+                if (!isWaitingForInput) {
+                  clearInterval(interval);
+                  resolve(inputQueue.shift());
+                }
+              }, 50);
+            });
+          },
+        });
+
+        Sk.misceval
+          .asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, programCode, true))
+          .then(
+            () => appendOutput("<br>Program finished successfully.<br>"),
+            (err) => appendOutput(`<br>Error: ${err.toString()}<br>`)
+          );
+      }
+    </script>
+  </body>
 </html>
